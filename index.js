@@ -6,10 +6,10 @@ import invariant from 'invariant';
 
 var RNOneSignal = NativeModules.OneSignal;
 
-var DEVICE_NOTIF_RECEIVED_EVENT = 'OneSignal-remoteNotificationReceived';
-var DEVICE_NOTIF_OPENED_EVENT = 'OneSignal-remoteNotificationOpened';
-var DEVICE_NOTIF_REG_EVENT = 'OneSignal-remoteNotificationsRegistered';
-var DEVICE_IDS_AVAILABLE = 'OneSignal-idsAvailable';
+var DEVICE_NOTIF_RECEIVED_EVENT = 'remoteNotificationReceived';
+var DEVICE_NOTIF_OPENED_EVENT = 'remoteNotificationOpened';
+var DEVICE_NOTIF_REG_EVENT = 'remoteNotificationsRegistered';
+var DEVICE_IDS_AVAILABLE = 'idsAvailable';
 
 const _notifHandlers = new Map();
 
@@ -180,6 +180,15 @@ export default class OneSignal {
             RNOneSignal.inFocusDisplaying(displayOption);
         }
     }
+
+    static postNotificationRaw(params) {
+        if (Platform.OS == 'android') {
+            RNOneSignal.postNotificationRaw(JSON.stringify(params));
+        } else {
+            RNOneSignal.postNotificationRaw(params);
+        }
+    }
+
 
     static postNotification(contents, data, player_id) {
         if (Platform.OS == 'android') {
