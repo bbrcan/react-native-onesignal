@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.os.Handler;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -280,9 +281,18 @@ public class RNOneSignal extends ReactContextBaseJavaModule implements Lifecycle
     }
 
     private void notifyNotificationOpened(Bundle bundle) {
+
+        // Opened callback will never be called due to race condition unless at short delay...
+        // https://github.com/geektimecoil/react-native-onesignal/issues/279
         try {
-            JSONObject jsonObject = new JSONObject(bundle.getString("result"));
-            sendEvent("OneSignal-remoteNotificationOpened",  RNUtils.jsonToWritableMap(jsonObject));
+            final JSONObject jsonObject = new JSONObject(bundle.getString("result"));
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendEvent("OneSignal-remoteNotificationOpened",  RNUtils.jsonToWritableMap(jsonObject));
+                }
+            }, 2000);
         } catch(Throwable t) {
             t.printStackTrace();
         }
